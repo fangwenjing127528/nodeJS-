@@ -5,6 +5,18 @@ const express = require('express');
 const router = require('./router');
 // 导入body-parser包
 const bodyParser = require('body-parser');
+// 导入express-session包
+const session = require('express-session');
+// 导入express-mysql-session
+const MySQLStore = require('express-mysql-session')(session);
+const options = {
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: 'root',
+    database: 'news'
+};
+const sessionStore = new MySQLStore(options);
 // 实例化app
 const app = express();
 // 配置express-art-template包
@@ -20,8 +32,39 @@ app.use(bodyParser.urlencoded({
   extended:false
 }));
 app.use(bodyParser.json());
+// 配置express-mysql-session包
+app.use(session({
+  key: 'session_cookie_name',
+  secret: 'session_cookie_secret',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false
+}));
+
+// 处理监听session的中间件---公共成员复制的中间件
+app.use((req,res,next)=>{
+  app.locals.sessionUser=req.session.user;
+  next();
+})
+
 //使用路由
 app.use(router);
+
+// 处理404
+app.use((req,res,next)=>{
+  res.render('404.html');
+  next();
+})
+
+
+
+//统一配置所有的错误
+app.use((err,req,res,next)=>{
+  res.send({
+    code:500,
+    message:err.message
+  });
+});
 //监听接口
 app.listen(12347,() => {
   console.log('run it-----');

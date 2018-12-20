@@ -16,4 +16,34 @@ exports.checkEmail =(email,callback)=>{
       callback(null,data);
     }
   });
+};
+
+
+// 添加新用户信息
+exports.insertUser=(body,callback)=>{
+  // 拼写sql
+  const sqlstr = 'insert into `users` set ?';
+  //执行sql
+  connection.query(sqlstr,body,(err,data)=>{
+    if(err){
+      callback(err,null);
+    }else{
+      callback(null,data);
+    }
+  });
+}
+
+
+//检测昵称的sql
+exports.checkNiceName=(nickname,callback)=>{
+  // 拼写sql
+  const sqlstr = 'select * from `users` where nickname=?';
+  //执行sql
+  connection.query(sqlstr,nickname,(err,data)=>{
+    if(err){
+      callback(err,null);
+    }else{
+      callback(null,data);
+    }
+  });
 }
